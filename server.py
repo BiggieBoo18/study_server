@@ -63,7 +63,7 @@ def run_command(command):
 
 def client_handler(client_socket, upload, upload_destination, execute, command):
     # upload
-    if len(upload_destination):
+    if upload and len(upload_destination):
         # write all data
         file_buffer = ""
         # recieve data
