@@ -67,21 +67,28 @@ def client_handler(client_socket, upload, upload_destination, execute, command):
         # write all data
         file_buffer = ""
         # recieve data
+        i = 0
+        message = lambda x:"{0}: ".format(x)
         while True:
-            data = client_socket.recv(1024)
-            if len(data)==0:
+            client_socket.send(
+                bytes("what input?\n{}".format(message(i)), "utf-8"))
+            data = client_socket.recv(1024).decode("utf-8")
+            if data=="\n":
                 break
             else:
                 file_buffer += data
+                i           += 1
         # write data to file
         try:
             fd = open(upload_destination, "wb")
-            fd.write(file_buffer)
+            fd.write(bytes(file_buffer, "utf-8"))
             fd.close()
             # response
             client_socket.send(
                 bytes("Successfully saved file to {0}\n".format(upload_destination), "utf-8"))
         except:
+            import traceback
+            traceback.print_exc()
             client_socket.send(
                 bytes("Failed to save file to {0}\n".format(upload_destination), "utf-8"))
             
@@ -108,13 +115,13 @@ def client_handler(client_socket, upload, upload_destination, execute, command):
         
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--listen",      "-l", action="store_true",    help="listen on [host]:[port] for imcoming connections")
-    parser.add_argument("--command",     "-c", action="store_true",    help="initialize a command shell")
-    parser.add_argument("--upload",      "-u", action="store_true",    help="--upload=destination - upon recieving connection upload a file and write to [destination]")
-    parser.add_argument("--execute",     "-e", type=str, default="",   help="execute the given file upon recieving a connection")
-    parser.add_argument("--target",      "-t", type=str, default="",   help="connection target")
-    parser.add_argument("--upload_dest", "-d", type=str, default="",   help="upload destination")
-    parser.add_argument("--port",        "-p", type=int, default=9999, help="upload destination")
+    parser.add_argument("--listen",      "-l", action="store_true",              help="listen on [host]:[port] for imcoming connections")
+    parser.add_argument("--command",     "-c", action="store_true",              help="initialize a command shell")
+    parser.add_argument("--upload",      "-u", action="store_true",              help="--upload=destination - upon recieving connection upload a file and write to [destination]")
+    parser.add_argument("--execute",     "-e", type=str, default="",             help="execute the given file upon recieving a connection")
+    parser.add_argument("--target",      "-t", type=str, default="",             help="connection target")
+    parser.add_argument("--upload_dest", "-d", type=str, default="./hacked.txt", help="upload destination")
+    parser.add_argument("--port",        "-p", type=int, default=9999,           help="upload destination")
     args = parser.parse_args()
 
     listen             = args.listen
@@ -125,10 +132,10 @@ def main():
     upload_destination = args.upload_dest
     port               = args.port
 
-    # input
+    # client
     if not listen and len(target) and port>0:
         buf = sys.stdin.read() # key press Ctrl-D if don't send
-        # send
+        # sender
         client_sender(buf, target, port)
 
     # server
