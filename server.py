@@ -121,7 +121,7 @@ def main():
     parser.add_argument("--execute",     "-e", type=str, default="",             help="execute the given file upon recieving a connection")
     parser.add_argument("--target",      "-t", type=str, default="",             help="connection target")
     parser.add_argument("--upload_dest", "-d", type=str, default="./hacked.txt", help="upload destination")
-    parser.add_argument("--port",        "-p", type=int, default=9999,           help="upload destination")
+    parser.add_argument("--port",        "-p", type=int, default=9999,           help="number of port")
     args = parser.parse_args()
 
     listen             = args.listen
